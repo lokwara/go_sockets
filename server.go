@@ -3,7 +3,25 @@ package main
 import (
 	"fmt"
 	"net"
+	"time"
 )
+
+func handleConnection(conn net.Conn) {
+	defer conn.Close()
+
+	for {
+		// Send a message to the client
+		message := "Hello from the server! The time is" + time.Now().String()
+		_, err := conn.Write([]byte(message + "\n"))
+		if err != nil {
+			fmt.Println("Error writing to client:", err)
+			return
+		}
+
+		// Pause for 5 Seconds before sending another message
+		time.Sleep(5 * time.Second)
+	}
+}
 
 func main() {
 	// Listen on TCP port 8080
@@ -18,16 +36,16 @@ func main() {
 
 	fmt.Println("Server is listening on port 8080...")
 
-	//Accept a connection
-	//conn is short for connection, between two end points, client and a server.
-	conn, err := ln.Accept()
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-	defer conn.Close()
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			fmt.Println("Error accepting Connection:", err)
+			continue
+		}
 
-	// Send a message to the client
-	message := "Hello from the Server!"
-	conn.Write([]byte(message))
+		fmt.Println("New Client connected!")
+
+		// Handle each connection in a new goroutine
+		go handleConnection(conn)
+	}
 }

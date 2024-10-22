@@ -18,11 +18,12 @@ func main() {
 	//Receive message from Server
 	buffer := make([]byte, 1024) //make allocates and initializes slices and maps.
 	//[]byte creates a slice where ach element is a byte
-	n, err := conn.Read(buffer)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
+	for {
+		n, err := conn.Read(buffer)
+		if err != nil {
+			fmt.Println("Error reading from server:", err)
+			return
+		}
+		fmt.Println("Server says:", string(buffer[:n]))
 	}
-
-	fmt.Println("Server says:", string(buffer[:n]))
 }
